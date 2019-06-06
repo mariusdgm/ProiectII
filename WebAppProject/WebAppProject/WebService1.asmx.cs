@@ -114,6 +114,29 @@ namespace WebAppProject
             return dsCategories;
         }
 
+        [WebMethod(Description = "Returns a dataset containing the names of the properties of a given category (based on category id)")]
+        public DataSet get_category_property_names(int categoryId)
+        {
+            DataSet dsData;
+            dsData = new DataSet();
+
+            SqlConnection myCon = new SqlConnection();
+            // Change the connection string on other computers
+            myCon.ConnectionString = connString;
+            myCon.Open();
+
+            SqlDataAdapter daData = new SqlDataAdapter("SELECT m.PropertyName1, m.PropertyName2, m.PropertyName3 " +
+                                                            "FROM [Categorii] as c " +
+                                                            "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
+                                                            "INNER JOIN [Parts] as t on(c.IdCategorie = t.IdCategorie)" +
+                                                            "WHERE c.IdCategorie = " + categoryId.ToString()
+                                                            , myCon);
+            daData.Fill(dsData, "AdaptedData");
+            myCon.Close();
+
+            return dsData;
+        }
+
         [WebMethod(Description = "Adds a product to the database")]
         public void add_product(int categoryId, String name, string v1, string v2, string v3, int quantity)
         {
@@ -127,7 +150,7 @@ namespace WebAppProject
 
             string querry;
             querry = "INSERT INTO Parts ([IdCategorie], [Nume], " +
-                        "[PropertyValue1], [PropertyValue1], [PropertyValue1], [Quantity]) " +
+                        "[PropertyValue1], [PropertyValue2], [PropertyValue3], [Quantity]) " +
                         "values(@categoryId, @nume, @propVal1, @propVal2, @propVal3, @quantity)";
             SqlCommand command = new SqlCommand(querry, myCon);
 
@@ -158,11 +181,11 @@ namespace WebAppProject
 
             string querry;
             querry = "UPDATE Parts SET IdCategorie = @categoryId, Nume = @name, " +
-                "PropertyValue1 = @propVal1, PropertyValue2 = @propVal2, PropertyValue3 = propVal3" +
-                " WHERE IdPiesa = @idPiesa";
+                "PropertyValue1 = @propVal1, PropertyValue2 = @propVal2, PropertyValue3 = @propVal3 " +
+                "WHERE IdPiesa = @idPiesa";
             SqlCommand command = new SqlCommand(querry, myCon);
 
-            command.Parameters.AddWithValue("@IdCategorie", categoryId);
+            command.Parameters.AddWithValue("@categoryId", categoryId);
             command.Parameters.AddWithValue("@name", name);
             command.Parameters.AddWithValue("@propVal1", v1);
             command.Parameters.AddWithValue("@propVal2", v2);
@@ -239,7 +262,7 @@ namespace WebAppProject
             return;
         }
 
-        [WebMethod(Description = "Returns 0 if connection is unsuccessfl, 1 if normal konnection is succesful, 2 if succesful and has admin rights")]
+        [WebMethod(Description = "Returns 0 if login is unsuccessful, 1 if normal login is succesful, 2 if login is succesful and has admin rights")]
         public int check_login(string userName, string passVal)
         {
             DataSet dsData;
