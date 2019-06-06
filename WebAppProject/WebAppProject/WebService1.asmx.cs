@@ -8,7 +8,6 @@ using System.Data;
 
 namespace WebAppProject
 {
-    //String connString;
     /// <summary>
     /// Summary description for WebService1
     /// </summary>
@@ -18,7 +17,8 @@ namespace WebAppProject
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     // [System.Web.Script.Services.ScriptService]
     public class WebService1 : System.Web.Services.WebService
-    { 
+    {
+        String connString = @"Data Source = (LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\ProjectDatabase.mdf;Integrated Security=True;";
 
 
         [WebMethod (Description = "Returns a Hello World string")]
@@ -35,7 +35,7 @@ namespace WebAppProject
 
             SqlConnection myCon = new SqlConnection();
             // Change the connection string on other computers
-            myCon.ConnectionString = @"Data Source = (LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\Programming\C#\Proiect\WebAppProject\WebAppProject\App_Data\ProjectDatabase.mdf;Integrated Security=True;";
+            myCon.ConnectionString = connString;
             myCon.Open();
 
             SqlDataAdapter daCategories = new SqlDataAdapter("SELECT * FROM [Categorii] as c " +
@@ -63,7 +63,7 @@ namespace WebAppProject
 
             SqlConnection myCon = new SqlConnection();
             // Change the connection string on other computers
-            myCon.ConnectionString = @"Data Source = (LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\Programming\C#\Proiect\WebAppProject\WebAppProject\App_Data\ProjectDatabase.mdf;Integrated Security=True;";
+            myCon.ConnectionString = connString;
             myCon.Open();
 
             SqlDataAdapter daCategories = new SqlDataAdapter("SELECT * FROM [Categorii] as c " +
