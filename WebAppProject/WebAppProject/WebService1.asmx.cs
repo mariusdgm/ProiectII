@@ -239,10 +239,47 @@ namespace WebAppProject
             return;
         }
 
-        [WebMethod(Description = "Returns a Hello World string")]
-        public string HelloWorld()
+        [WebMethod(Description = "Returns 0 if connection is unsuccessfl, 1 if normal konnection is succesful")]
+        public int check_login(string userName, string passVal)
         {
-            return "Hello World";
+            DataSet dsData;
+            dsData = new DataSet();
+
+            SqlConnection myCon = new SqlConnection();
+            // Change the connection string on other computers
+            myCon.ConnectionString = connString;
+            myCon.Open();
+
+            SqlDataAdapter daData = new SqlDataAdapter("SELECT * FROM [LoginCreds]", myCon);
+            daData.Fill(dsData, "AdaptedData");
+            myCon.Close();
+
+            foreach (DataRow dr in dsData.Tables["AdaptedData"].Rows)
+            {
+                if (userName.Trim() == dr["UserName"].ToString().Trim())
+                {
+                    if (passVal.Trim() == dr["Password"].ToString().Trim())
+                    {
+                        // Check if user has admin rights
+                        if(Convert.ToBoolean(dr["Admin"]) == true)
+                        {
+                            return 2;
+                        }
+                        else
+                        {
+                            return 1;
+                        }
+                    };
+                };
+            }
+
+            return 0;
         }
+
+        //[WebMethod(Description = "Returns a Hello World string")]
+        //public string HelloWorld()
+        //{
+        //    return "Hello World";
+        //}
     }
 }
