@@ -21,12 +21,6 @@ namespace WebAppProject
         String connString = @"Data Source = (LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\ProjectDatabase.mdf;Integrated Security=True;";
 
 
-        [WebMethod (Description = "Returns a Hello World string")]
-        public string HelloWorld()
-        {
-            return "Hello World";
-        }
-
         [WebMethod(Description = "Returns a dataset containing all database data")]
         public DataSet get_all_db()
         {
@@ -66,21 +60,21 @@ namespace WebAppProject
             myCon.ConnectionString = connString;
             myCon.Open();
 
-            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT * FROM [Categorii] as c " +
+            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT c.IdCategorie, c.NumeCategorie FROM [Categorii] as c " +
                                                             "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
-                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie) "
+                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)"
                                                             , myCon);
             daCategories.Fill(dsCategories, "Adapted Data");
 
-            List<string> categoryList = new List<string>();
-            foreach (DataRow dr in dsCategories.Tables["Adapted Data"].Rows)
-            {
-                String name = dr.ItemArray.GetValue(1).ToString();
-                categoryList.Add(name);
-            }
             myCon.Close();
 
             return dsCategories;
+        }
+
+        [WebMethod(Description = "Returns a Hello World string")]
+        public string HelloWorld()
+        {
+            return "Hello World";
         }
     }
 }
