@@ -91,7 +91,7 @@ namespace WebAppProject
         }
 
         [WebMethod(Description = "Returns a dataset containing the details of a product (based on product id)")]
-        public DataRow get_product_details(int productId)
+        public DataSet get_product_details(int productId)
         {
             DataSet dsCategories;
             dsCategories = new DataSet();
@@ -111,7 +111,7 @@ namespace WebAppProject
             daCategories.Fill(dsCategories, "AdaptedData");
             myCon.Close();
 
-            return dsCategories.Tables["AdaptedData"].Rows[0];
+            return dsCategories;
         }
 
         [WebMethod(Description = "Adds a product to the database")]
@@ -182,24 +182,41 @@ namespace WebAppProject
             DataSet dsCategories;
             dsCategories = new DataSet();
 
+            int newQuantity = 0;
+            int oldQuantity = 0;
+
             SqlConnection myCon = new SqlConnection();
             // Change the connection string on other computers
             myCon.ConnectionString = connString;
             myCon.Open();
 
-            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT t.IdPiesa, t.Nume FROM [Categorii] as c " +
-                                                            "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
-                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)" +
-                                                            "WHERE c.IdCategorie = " + categoryId.ToString()
-                                                            , myCon);
+            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT c.NumeCategorie, m.PropertyName1, m.PropertyName2, m.PropertyName3, " +
+                                                            "t.Nume, t.PropertyValue1, t.PropertyValue2, t.PropertyValue3, " +
+                                                            "t.Quantity FROM [Categorii] as c " +
+                                                           "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
+                                                           "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)" +
+                                                           "WHERE t.IdPiesa = " + productId.ToString()
+                                                           , myCon);
             daCategories.Fill(dsCategories, "AdaptedData");
+
+            oldQuantity = Convert.ToInt32(dsCategories.Tables["AdaptedData"].Rows[0]["Quantity"]);
+            newQuantity = oldQuantity + changedVal;
+
+            string querry;
+            querry = "UPDATE Table SET Quantity = @newQuantity WHERE IdPiesa = @idPiesa";
+            SqlCommand command = new SqlCommand(querry, myCon);
+
+            command.Parameters.AddWithValue("@newQuantity", newQuantity);
+            command.Parameters.AddWithValue("@idPiesa", productId);
+
+            int res = command.ExecuteNonQuery();
             myCon.Close();
 
             return;
         }
 
         [WebMethod(Description = "Delete a product from database")]
-        public DataSet delete_product(int productId)
+        public void delete_product(int productId)
         {
             DataSet dsCategories;
             dsCategories = new DataSet();
@@ -209,15 +226,17 @@ namespace WebAppProject
             myCon.ConnectionString = connString;
             myCon.Open();
 
-            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT t.IdPiesa, t.Nume FROM [Categorii] as c " +
-                                                            "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
-                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)" +
-                                                            "WHERE c.IdCategorie = " + productId.ToString()
-                                                            , myCon);
-            daCategories.Fill(dsCategories, "AdaptedData");
+            string querry;
+            querry = "DELETE FROM Table WHERE IdPiesa = @productId;
+            SqlCommand command = new SqlCommand(querry, myCon);
+
+            command.Parameters.AddWithValue("@productId", productId);
+
+            int res = command.ExecuteNonQuery();
+
             myCon.Close();
 
-            return dsCategories;
+            return;
         }
 
         [WebMethod(Description = "Returns a Hello World string")]
