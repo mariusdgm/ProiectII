@@ -8,6 +8,7 @@ using System.Data;
 
 namespace WebAppProject
 {
+    //String connString;
     /// <summary>
     /// Summary description for WebService1
     /// </summary>
@@ -17,29 +18,62 @@ namespace WebAppProject
     // To allow this Web Service to be called from script, using ASP.NET AJAX, uncomment the following line. 
     // [System.Web.Script.Services.ScriptService]
     public class WebService1 : System.Web.Services.WebService
-    {
+    { 
 
-        [WebMethod]
+
+        [WebMethod (Description = "Returns a Hello World string")]
         public string HelloWorld()
         {
             return "Hello World";
         }
 
-        [WebMethod]
-        public DataSet get_dataset()
+        [WebMethod(Description = "Returns a dataset containing all database data")]
+        public DataSet get_all_db()
         {
             DataSet dsCategories;
             dsCategories = new DataSet();
 
             SqlConnection myCon = new SqlConnection();
-            myCon.ConnectionString = @"Data Source = (LocalDB)\MSSQLLocalDB;AttachDbFilename=App_Data\Database1.mdf;Integrated Security=True";
+            // Change the connection string on other computers
+            myCon.ConnectionString = @"Data Source = (LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\Programming\C#\Proiect\WebAppProject\WebAppProject\App_Data\ProjectDatabase.mdf;Integrated Security=True;";
             myCon.Open();
 
-            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT * FROM CATEGORIES_TABLE", myCon);
-            daCategories.Fill(dsCategories, "Cars");
+            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT * FROM [Categorii] as c " +
+                                                            "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
+                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie) "
+                                                            , myCon);
+            daCategories.Fill(dsCategories, "Adapted Data");
 
             List<string> categoryList = new List<string>();
-            foreach (DataRow dr in dsCategories.Tables["Cars"].Rows)
+            foreach (DataRow dr in dsCategories.Tables["Adapted Data"].Rows)
+            {
+                String name = dr.ItemArray.GetValue(1).ToString();
+                categoryList.Add(name);
+            }
+            myCon.Close();
+
+            return dsCategories;
+        }
+
+        [WebMethod(Description = "Returns a dataset containing category id and name")]
+        public DataSet get_category_list()
+        {
+            DataSet dsCategories;
+            dsCategories = new DataSet();
+
+            SqlConnection myCon = new SqlConnection();
+            // Change the connection string on other computers
+            myCon.ConnectionString = @"Data Source = (LocalDB)\MSSQLLocalDB;AttachDbFilename=D:\Programming\C#\Proiect\WebAppProject\WebAppProject\App_Data\ProjectDatabase.mdf;Integrated Security=True;";
+            myCon.Open();
+
+            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT * FROM [Categorii] as c " +
+                                                            "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
+                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie) "
+                                                            , myCon);
+            daCategories.Fill(dsCategories, "Adapted Data");
+
+            List<string> categoryList = new List<string>();
+            foreach (DataRow dr in dsCategories.Tables["Adapted Data"].Rows)
             {
                 String name = dr.ItemArray.GetValue(1).ToString();
                 categoryList.Add(name);
