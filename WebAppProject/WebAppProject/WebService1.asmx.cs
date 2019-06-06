@@ -101,10 +101,12 @@ namespace WebAppProject
             myCon.ConnectionString = connString;
             myCon.Open();
 
-            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT t.IdPiesa, t.Nume FROM [Categorii] as c " +
+            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT m.PropertyName1, m.PropertyName2, m.PropertyName3, " +
+                                                             "t.Nume, t.PropertyValue1, t.PropertyValue2, t.PropertyValue3" +
+                                                             "t.Quantity FROM [Categorii] as c " +
                                                             "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
                                                             "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)" +
-                                                            "WHERE c.IdCategorie = " + productId.ToString()
+                                                            "WHERE t.IdPiesa = " + productId.ToString()
                                                             , myCon);
             daCategories.Fill(dsCategories, "AdaptedData");
             myCon.Close();
@@ -113,7 +115,7 @@ namespace WebAppProject
         }
 
         [WebMethod(Description = "Adds a product to the database")]
-        public DataSet add_product(int categoryId, String name, float v1, float v2, float v3)
+        public void add_product(int categoryId, String name, float v1, float v2, float v3, int quantity)
         {
             DataSet dsCategories;
             dsCategories = new DataSet();
@@ -123,19 +125,28 @@ namespace WebAppProject
             myCon.ConnectionString = connString;
             myCon.Open();
 
-            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT t.IdPiesa, t.Nume FROM [Categorii] as c " +
-                                                            "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
-                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)" +
-                                                            "WHERE c.IdCategorie = " + categoryId.ToString()
-                                                            , myCon);
-            daCategories.Fill(dsCategories, "AdaptedData");
+            string querry;
+            querry = "INSERT INTO Table ([IdCategorie], [Nume], " +
+                        "[PropertyValue1], [PropertyValue1], [PropertyValue1], [Quantity]) " +
+                        "values(@categoryId, @nume, @propVal1, @propVal2, @propVal3, @quantity)";
+            SqlCommand command = new SqlCommand(querry, myCon);
+
+            command.Parameters.AddWithValue("@categoryId", categoryId);
+            command.Parameters.AddWithValue("@nume", name);
+            command.Parameters.AddWithValue("@propVal1", v1);
+            command.Parameters.AddWithValue("@propVal2", v2);
+            command.Parameters.AddWithValue("@propVal3", v3);
+            command.Parameters.AddWithValue("@quantity", quantity);
+
+
+            int res = command.ExecuteNonQuery();
             myCon.Close();
 
-            return dsCategories;
+            return;
         }
 
         [WebMethod(Description = "Change product details")]
-        public DataSet update_product_details(int categoryId, String name, float v1, float v2, float v3)
+        public void update_product_details(int categoryId, String name, float v1, float v2, float v3)
         {
             DataSet dsCategories;
             dsCategories = new DataSet();
@@ -153,7 +164,7 @@ namespace WebAppProject
             daCategories.Fill(dsCategories, "AdaptedData");
             myCon.Close();
 
-            return dsCategories;
+            return;
         }
 
         [WebMethod(Description = "Delete a product from database")]
