@@ -91,7 +91,7 @@ namespace WebAppProject
         }
 
         [WebMethod(Description = "Returns a dataset containing the details of a product (based on product id)")]
-        public DataSet get_product_details(int productId)
+        public DataRow get_product_details(int productId)
         {
             DataSet dsCategories;
             dsCategories = new DataSet();
@@ -101,8 +101,8 @@ namespace WebAppProject
             myCon.ConnectionString = connString;
             myCon.Open();
 
-            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT m.PropertyName1, m.PropertyName2, m.PropertyName3, " +
-                                                             "t.Nume, t.PropertyValue1, t.PropertyValue2, t.PropertyValue3" +
+            SqlDataAdapter daCategories = new SqlDataAdapter("SELECT c.NumeCategorie, m.PropertyName1, m.PropertyName2, m.PropertyName3, " +
+                                                             "t.Nume, t.PropertyValue1, t.PropertyValue2, t.PropertyValue3, " +
                                                              "t.Quantity FROM [Categorii] as c " +
                                                             "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
                                                             "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)" +
@@ -111,7 +111,7 @@ namespace WebAppProject
             daCategories.Fill(dsCategories, "AdaptedData");
             myCon.Close();
 
-            return dsCategories;
+            return dsCategories.Tables["AdaptedData"].Rows[0];
         }
 
         [WebMethod(Description = "Adds a product to the database")]
@@ -146,7 +146,38 @@ namespace WebAppProject
         }
 
         [WebMethod(Description = "Change product details")]
-        public void update_product_details(int categoryId, String name, float v1, float v2, float v3)
+        public void update_product_details(int productId, int categoryId, String name, float v1, float v2, float v3)
+        {
+            DataSet dsCategories;
+            dsCategories = new DataSet();
+
+            SqlConnection myCon = new SqlConnection();
+            // Change the connection string on other computers
+            myCon.ConnectionString = connString;
+            myCon.Open();
+
+            string querry;
+            querry = "UPDATE Table SET IdCategorie = @categoryId, Nume = @name, " +
+                "PropertyValue1 = @propVal1, PropertyValue2 = @propVal2, PropertyValue3 = propVal3" +
+                " WHERE IdPiesa = @idPiesa";
+            SqlCommand command = new SqlCommand(querry, myCon);
+
+            command.Parameters.AddWithValue("@IdCategorie", categoryId);
+            command.Parameters.AddWithValue("@name", name);
+            command.Parameters.AddWithValue("@propVal1", v1);
+            command.Parameters.AddWithValue("@propVal2", v2);
+            command.Parameters.AddWithValue("@propVal3", v3);
+            command.Parameters.AddWithValue("@idPiesa", productId);
+
+            int res = command.ExecuteNonQuery();
+
+            myCon.Close();
+
+            return;
+        }
+
+        [WebMethod(Description = "Change product quantity")]
+        public void update_product_quantity(int productId, int changedVal)
         {
             DataSet dsCategories;
             dsCategories = new DataSet();
