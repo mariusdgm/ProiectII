@@ -25,7 +25,7 @@ namespace WebAppProject
             dsCategories = new DataSet();
 
             SqlConnection myCon = new SqlConnection();
-            // Change the connection string on other computers
+       
             myCon.ConnectionString = connString;
             myCon.Open();
 
@@ -34,14 +34,7 @@ namespace WebAppProject
                                                             "INNER JOIN [Parts] as t on(c.IdCategorie = t.IdCategorie) "
                                                             , myCon);
             daCategories.Fill(dsCategories, "AdaptedData");
-
-            List<string> categoryList = new List<string>();
-            foreach (DataRow dr in dsCategories.Tables["AdaptedData"].Rows)
-            {
-                String name = dr.ItemArray.GetValue(1).ToString();
-                categoryList.Add(name);
-            }
-
+           
             myCon.Close();
 
             return dsCategories;
@@ -54,7 +47,7 @@ namespace WebAppProject
             dsCategories = new DataSet();
 
             SqlConnection myCon = new SqlConnection();
-            // Change the connection string on other computers
+       
             myCon.ConnectionString = connString;
             myCon.Open();
 
@@ -75,7 +68,7 @@ namespace WebAppProject
             dsCategories = new DataSet();
 
             SqlConnection myCon = new SqlConnection();
-            // Change the connection string on other computers
+         
             myCon.ConnectionString = connString;
             myCon.Open();
 
@@ -97,13 +90,13 @@ namespace WebAppProject
             dsCategories = new DataSet();
 
             SqlConnection myCon = new SqlConnection();
-            // Change the connection string on other computers
+           
             myCon.ConnectionString = connString;
             myCon.Open();
 
             SqlDataAdapter daCategories = new SqlDataAdapter("SELECT c.NumeCategorie, m.PropertyName1, m.PropertyName2, m.PropertyName3, " +
                                                              "t.Nume, t.PropertyValue1, t.PropertyValue2, t.PropertyValue3, " +
-                                                             "t.Quantity FROM [Categorii] as c " +
+                                                             "t.Quantity, t.Location FROM [Categorii] as c " +
                                                             "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
                                                             "INNER JOIN [Parts] as t on(c.IdCategorie = t.IdCategorie)" +
                                                             "WHERE t.IdPiesa = " + productId.ToString()
@@ -121,7 +114,7 @@ namespace WebAppProject
             dsData = new DataSet();
 
             SqlConnection myCon = new SqlConnection();
-            // Change the connection string on other computers
+            
             myCon.ConnectionString = connString;
             myCon.Open();
 
@@ -144,7 +137,7 @@ namespace WebAppProject
             dsCategories = new DataSet();
 
             SqlConnection myCon = new SqlConnection();
-            // Change the connection string on other computers
+          
             myCon.ConnectionString = connString;
             myCon.Open();
 
@@ -161,7 +154,6 @@ namespace WebAppProject
             command.Parameters.AddWithValue("@propVal3", v3);
             command.Parameters.AddWithValue("@quantity", quantity);
 
-
             int res = command.ExecuteNonQuery();
             myCon.Close();
 
@@ -169,19 +161,19 @@ namespace WebAppProject
         }
 
         [WebMethod(Description = "Change product details")]
-        public void update_product_details(int productId, int categoryId, String name, string v1, string v2, string v3)
+        public void update_product_details(int productId, int categoryId, string name, string v1, string v2, string v3, string loc)
         {
             DataSet dsCategories;
             dsCategories = new DataSet();
 
             SqlConnection myCon = new SqlConnection();
-            // Change the connection string on other computers
+      
             myCon.ConnectionString = connString;
             myCon.Open();
 
             string querry;
             querry = "UPDATE Parts SET IdCategorie = @categoryId, Nume = @name, " +
-                "PropertyValue1 = @propVal1, PropertyValue2 = @propVal2, PropertyValue3 = @propVal3 " +
+                "PropertyValue1 = @propVal1, PropertyValue2 = @propVal2, PropertyValue3 = @propVal3, Location = @newLoc " +
                 "WHERE IdPiesa = @idPiesa";
             SqlCommand command = new SqlCommand(querry, myCon);
 
@@ -190,6 +182,7 @@ namespace WebAppProject
             command.Parameters.AddWithValue("@propVal1", v1);
             command.Parameters.AddWithValue("@propVal2", v2);
             command.Parameters.AddWithValue("@propVal3", v3);
+            command.Parameters.AddWithValue("@newLoc", loc);
             command.Parameters.AddWithValue("@idPiesa", productId);
 
             int res = command.ExecuteNonQuery();
@@ -209,7 +202,7 @@ namespace WebAppProject
             int oldQuantity = 0;
 
             SqlConnection myCon = new SqlConnection();
-            // Change the connection string on other computers
+        
             myCon.ConnectionString = connString;
             myCon.Open();
 
@@ -245,7 +238,7 @@ namespace WebAppProject
             dsCategories = new DataSet();
 
             SqlConnection myCon = new SqlConnection();
-            // Change the connection string on other computers
+          
             myCon.ConnectionString = connString;
             myCon.Open();
 
@@ -269,7 +262,7 @@ namespace WebAppProject
             dsData = new DataSet();
 
             SqlConnection myCon = new SqlConnection();
-            // Change the connection string on other computers
+           
             myCon.ConnectionString = connString;
             myCon.Open();
 
@@ -284,7 +277,7 @@ namespace WebAppProject
                     if (passVal.Trim() == dr["Password"].ToString().Trim())
                     {
                         // Check if user has admin rights
-                        if(Convert.ToBoolean(dr["AdminRights"]) == true)
+                        if (Convert.ToBoolean(dr["AdminRights"]) == true)
                         {
                             return 2;
                         }
