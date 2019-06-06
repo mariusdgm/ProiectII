@@ -31,7 +31,7 @@ namespace WebAppProject
 
             SqlDataAdapter daCategories = new SqlDataAdapter("SELECT * FROM [Categorii] as c " +
                                                             "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
-                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie) "
+                                                            "INNER JOIN [Parts] as t on(c.IdCategorie = t.IdCategorie) "
                                                             , myCon);
             daCategories.Fill(dsCategories, "AdaptedData");
 
@@ -60,7 +60,7 @@ namespace WebAppProject
 
             SqlDataAdapter daCategories = new SqlDataAdapter("SELECT DISTINCT c.IdCategorie, c.NumeCategorie FROM [Categorii] as c " +
                                                             "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
-                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)"
+                                                            "INNER JOIN [Parts] as t on(c.IdCategorie = t.IdCategorie)"
                                                             , myCon);
             daCategories.Fill(dsCategories, "AdaptedData");
             myCon.Close();
@@ -81,7 +81,7 @@ namespace WebAppProject
 
             SqlDataAdapter daCategories = new SqlDataAdapter("SELECT t.IdPiesa, t.Nume FROM [Categorii] as c " +
                                                             "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
-                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)" +
+                                                            "INNER JOIN [Parts] as t on(c.IdCategorie = t.IdCategorie)" +
                                                             "WHERE c.IdCategorie = " + categoryId.ToString()
                                                             , myCon);
             daCategories.Fill(dsCategories, "AdaptedData");
@@ -105,7 +105,7 @@ namespace WebAppProject
                                                              "t.Nume, t.PropertyValue1, t.PropertyValue2, t.PropertyValue3, " +
                                                              "t.Quantity FROM [Categorii] as c " +
                                                             "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
-                                                            "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)" +
+                                                            "INNER JOIN [Parts] as t on(c.IdCategorie = t.IdCategorie)" +
                                                             "WHERE t.IdPiesa = " + productId.ToString()
                                                             , myCon);
             daCategories.Fill(dsCategories, "AdaptedData");
@@ -115,7 +115,7 @@ namespace WebAppProject
         }
 
         [WebMethod(Description = "Adds a product to the database")]
-        public void add_product(int categoryId, String name, float v1, float v2, float v3, int quantity)
+        public void add_product(int categoryId, String name, string v1, string v2, string v3, int quantity)
         {
             DataSet dsCategories;
             dsCategories = new DataSet();
@@ -126,7 +126,7 @@ namespace WebAppProject
             myCon.Open();
 
             string querry;
-            querry = "INSERT INTO Table ([IdCategorie], [Nume], " +
+            querry = "INSERT INTO Parts ([IdCategorie], [Nume], " +
                         "[PropertyValue1], [PropertyValue1], [PropertyValue1], [Quantity]) " +
                         "values(@categoryId, @nume, @propVal1, @propVal2, @propVal3, @quantity)";
             SqlCommand command = new SqlCommand(querry, myCon);
@@ -146,7 +146,7 @@ namespace WebAppProject
         }
 
         [WebMethod(Description = "Change product details")]
-        public void update_product_details(int productId, int categoryId, String name, float v1, float v2, float v3)
+        public void update_product_details(int productId, int categoryId, String name, string v1, string v2, string v3)
         {
             DataSet dsCategories;
             dsCategories = new DataSet();
@@ -157,7 +157,7 @@ namespace WebAppProject
             myCon.Open();
 
             string querry;
-            querry = "UPDATE Table SET IdCategorie = @categoryId, Nume = @name, " +
+            querry = "UPDATE Parts SET IdCategorie = @categoryId, Nume = @name, " +
                 "PropertyValue1 = @propVal1, PropertyValue2 = @propVal2, PropertyValue3 = propVal3" +
                 " WHERE IdPiesa = @idPiesa";
             SqlCommand command = new SqlCommand(querry, myCon);
@@ -194,7 +194,7 @@ namespace WebAppProject
                                                             "t.Nume, t.PropertyValue1, t.PropertyValue2, t.PropertyValue3, " +
                                                             "t.Quantity FROM [Categorii] as c " +
                                                            "INNER JOIN [Marimi] as m on (c.IdCategorie = m.IdCategorie) " +
-                                                           "INNER JOIN [Table] as t on(c.IdCategorie = t.IdCategorie)" +
+                                                           "INNER JOIN [Parts] as t on(c.IdCategorie = t.IdCategorie)" +
                                                            "WHERE t.IdPiesa = " + productId.ToString()
                                                            , myCon);
             daCategories.Fill(dsCategories, "AdaptedData");
@@ -203,7 +203,7 @@ namespace WebAppProject
             newQuantity = oldQuantity + changedVal;
 
             string querry;
-            querry = "UPDATE Table SET Quantity = @newQuantity WHERE IdPiesa = @idPiesa";
+            querry = "UPDATE Parts SET Quantity = @newQuantity WHERE IdPiesa = @idPiesa";
             SqlCommand command = new SqlCommand(querry, myCon);
 
             command.Parameters.AddWithValue("@newQuantity", newQuantity);
@@ -227,7 +227,7 @@ namespace WebAppProject
             myCon.Open();
 
             string querry;
-            querry = "DELETE FROM Table WHERE IdPiesa = @productId";
+            querry = "DELETE FROM Parts WHERE IdPiesa = @productId";
             SqlCommand command = new SqlCommand(querry, myCon);
 
             command.Parameters.AddWithValue("@productId", productId);
@@ -239,7 +239,7 @@ namespace WebAppProject
             return;
         }
 
-        [WebMethod(Description = "Returns 0 if connection is unsuccessfl, 1 if normal konnection is succesful")]
+        [WebMethod(Description = "Returns 0 if connection is unsuccessfl, 1 if normal konnection is succesful, 2 if succesful and has admin rights")]
         public int check_login(string userName, string passVal)
         {
             DataSet dsData;
@@ -261,7 +261,7 @@ namespace WebAppProject
                     if (passVal.Trim() == dr["Password"].ToString().Trim())
                     {
                         // Check if user has admin rights
-                        if(Convert.ToBoolean(dr["Admin"]) == true)
+                        if(Convert.ToBoolean(dr["AdminRights"]) == true)
                         {
                             return 2;
                         }
