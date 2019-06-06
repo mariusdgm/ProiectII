@@ -227,7 +227,7 @@ namespace WebAppProject
             myCon.Open();
 
             string querry;
-            querry = "DELETE FROM Table WHERE IdPiesa = @productId;
+            querry = "DELETE FROM Table WHERE IdPiesa = @productId";
             SqlCommand command = new SqlCommand(querry, myCon);
 
             command.Parameters.AddWithValue("@productId", productId);
